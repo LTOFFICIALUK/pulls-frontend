@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { getJson, type Coin, type Pull } from "@/lib/api";
 import { Dialogue, PackFace, PageHead, Slab, Stat } from "@/components/ui";
 import { countdown, short, solscanAccount, solscanToken, solscanTx, usd } from "@/lib/format";
-import { PULLS_CA } from "@/lib/pulls";
 import { useWallet } from "@/lib/wallet";
 
 const bytes = (b64: string) => Uint8Array.from(atob(b64), (char) => char.charCodeAt(0));
@@ -132,7 +131,6 @@ export const CoinView = ({ mint }: { mint: string }) => {
   }
 
   const newest = pulls.find((pull) => pull.image) || null;
-  const isPulls = coin.mint === PULLS_CA;
 
   return (
     <div className="px-6 py-10 md:px-12">
@@ -144,10 +142,8 @@ export const CoinView = ({ mint }: { mint: string }) => {
       </p>
       <div className="mt-6 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_240px]">
         <div>
-          <PageHead kicker={isPulls ? "10 PERCENT OF EVERY COIN" : "PAIRED WITH CARDS"} title={`$${coin.symbol}`}>
-            {isPulls
-              ? "Packs come from 10 percent of the fees of every coin launched on Pulls."
-              : coin.description || coin.name}
+          <PageHead kicker="PAIRED WITH CARDS" title={`$${coin.symbol}`}>
+            {coin.description || coin.name}
           </PageHead>
           <p className="mt-4 break-all font-mono text-xs text-mute">
             <a href={solscanToken(coin.mint)} className="hover:text-acc">

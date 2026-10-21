@@ -7,69 +7,6 @@ import { getJson, type Coin, type Pull, type Stats } from "@/lib/api";
 import { countdown, short, solscanAccount, usd } from "@/lib/format";
 import { PULLS_CA } from "@/lib/pulls";
 
-const PullsCard = ({ coin, history }: { coin: Coin | null; history: Pull[] }) => {
-  if (!coin) {
-    return <Dialogue>The $PULLS pack balance shows up here when the coin is on the board.</Dialogue>;
-  }
-  const newest = history.find((pull) => pull.image) || null;
-  return (
-    <article className="border border-line bg-black p-5 md:p-6" aria-labelledby="pulls-card-title">
-      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_200px]">
-        <div>
-          <p className="font-[family-name:var(--font-pixel)] text-[11px] text-acc">▶ $PULLS</p>
-          <h3 id="pulls-card-title" className="mt-4 font-[family-name:var(--font-pixel)] text-xl leading-relaxed text-ink">
-            <Link href={`/coin/${coin.mint}`} className="hover:text-acc">
-              ${coin.symbol}
-            </Link>
-          </h3>
-          <p className="mt-4 max-w-xl text-lg leading-snug text-mute">
-            Packs come from 10 percent of the fees of every coin launched on Pulls.
-          </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <Stat
-              label="Pack balance"
-              value={`${usd(coin.packBalanceUsdc)} / ${usd(coin.packPriceUsdc)}`}
-              hint={countdown(coin.etaMs) || "When fees cover a pack"}
-            />
-            <Stat label="Holders" value={String(coin.holders)} />
-            <Stat label="Pulls" value={String(coin.pulls)} />
-          </div>
-        </div>
-        <div className="flex justify-center lg:justify-end">
-          {newest?.image ? (
-            <div className="w-[180px]">
-              <Slab grade={newest.grade} note="$PULLS" image={newest.image} alt={newest.name || newest.grade} />
-            </div>
-          ) : (
-            <PackFace caption="$PULLS" />
-          )}
-        </div>
-      </div>
-      <h4 className="mt-8 font-[family-name:var(--font-pixel)] text-[10px] text-acc">PULL HISTORY</h4>
-      {history.length === 0 ? (
-        <div className="mt-4">
-          <Dialogue>No $PULLS pulls yet. The card, winner, and grade show up here after the first rip.</Dialogue>
-        </div>
-      ) : (
-        <ul className="mt-4 grid gap-2">
-          {history.slice(0, 6).map((pull) => (
-            <li key={pull.id} className="flex items-center justify-between gap-3 border border-line px-4 py-3">
-              <span className="font-mono text-sm text-acc">{pull.grade}</span>
-              {pull.winner ? (
-                <a href={solscanAccount(pull.winner)} className="font-mono text-xs text-mute hover:text-ink" aria-label={`Winner ${short(pull.winner)}`}>
-                  {short(pull.winner)}
-                </a>
-              ) : (
-                <span className="font-mono text-xs text-mute">Pending</span>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </article>
-  );
-};
-
 export const HomeView = () => {
   const [stats, setStats] = useState<Stats | null>(null);
   const [pulls, setPulls] = useState<Pull[] | null>(null);
@@ -107,7 +44,9 @@ export const HomeView = () => {
     };
   }, []);
 
-  const latest = pulls?.find((pull) => pull.image) || null;
+  const boardPulls = (pulls || []).filter((pull) => pull.mint !== PULLS_CA);
+  const boardCoins = (coins || []).filter((coin) => coin.mint !== PULLS_CA);
+  const latest = boardPulls.find((pull) => pull.image) || null;
   const timer = countdown(stats?.nextPack.etaMs);
   const headline = !stats
     ? "NEXT PACK RIPS WHEN FEES LAND"
@@ -116,7 +55,7 @@ export const HomeView = () => {
       : timer
         ? `NEXT PACK RIPS IN ${timer}`
         : "NEXT PACK RIPS WHEN FEES LAND";
-  const live = (pulls || []).slice(0, 8);
+  const live = boardPulls.slice(0, 8);
 
   return (
     <div>
@@ -212,55 +151,43 @@ export const HomeView = () => {
           <div className="mt-4">
             <Dialogue>Coins load from the server. Holders, pulls, vault value, and the next pack show up here.</Dialogue>
           </div>
+        ) : boardCoins.length === 0 ? (
+          <div className="mt-4">
+            <Dialogue>A coin launched on Pulls shows up here with holders, pulls, vault value, and the next pack.</Dialogue>
+          </div>
         ) : (
-          <>
-            <div className="mt-4">
-              <PullsCard
-                coin={(coins || []).find((coin) => coin.mint === PULLS_CA) || null}
-                history={(pulls || []).filter((pull) => pull.mint === PULLS_CA)}
-              />
-            </div>
-            {(coins || []).filter((coin) => coin.mint !== PULLS_CA).length === 0 ? (
-              <div className="mt-4">
-                <Dialogue>A coin launched on Pulls shows up here with holders, pulls, vault value, and the next pack.</Dialogue>
-              </div>
-            ) : (
-              <div className="mt-4 overflow-x-auto border border-line">
-                <table className="w-full min-w-[720px] text-left text-sm">
-                  <thead className="font-mono text-xs text-mute">
-                    <tr>
-                      <th className="px-4 py-3 font-medium">Coin</th>
-                      <th className="px-4 py-3 font-medium">Holders</th>
-                      <th className="px-4 py-3 font-medium">Pulls</th>
-                      <th className="px-4 py-3 font-medium">Vault</th>
-                      <th className="px-4 py-3 font-medium">Next pack</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(coins || [])
-                      .filter((coin) => coin.mint !== PULLS_CA)
-                      .map((coin) => (
-                        <tr key={coin.mint} className="border-t border-line hover:bg-white/[0.03]">
-                          <td className="px-4 py-3">
-                            <Link href={`/coin/${coin.mint}`} className="font-extrabold hover:text-acc">
-                              ${coin.symbol}
-                            </Link>
-                            <p className="font-mono text-xs text-mute">{short(coin.mint)}</p>
-                          </td>
-                          <td className="px-4 py-3 font-mono">{coin.holders}</td>
-                          <td className="px-4 py-3 font-mono">{coin.pulls}</td>
-                          <td className="px-4 py-3 font-mono text-acc">{usd(coin.vaultUsd)}</td>
-                          <td className="px-4 py-3 font-mono text-acc">
-                            {usd(coin.packBalanceUsdc)} / {usd(coin.packPriceUsdc)}
-                            <span className="mt-1 block text-mute">{countdown(coin.etaMs) || "When fees cover a pack"}</span>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
+          <div className="mt-4 overflow-x-auto border border-line">
+            <table className="w-full min-w-[720px] text-left text-sm">
+              <thead className="font-mono text-xs text-mute">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Coin</th>
+                  <th className="px-4 py-3 font-medium">Holders</th>
+                  <th className="px-4 py-3 font-medium">Pulls</th>
+                  <th className="px-4 py-3 font-medium">Vault</th>
+                  <th className="px-4 py-3 font-medium">Next pack</th>
+                </tr>
+              </thead>
+              <tbody>
+                {boardCoins.map((coin) => (
+                  <tr key={coin.mint} className="border-t border-line hover:bg-white/[0.03]">
+                    <td className="px-4 py-3">
+                      <Link href={`/coin/${coin.mint}`} className="font-extrabold hover:text-acc">
+                        ${coin.symbol}
+                      </Link>
+                      <p className="font-mono text-xs text-mute">{short(coin.mint)}</p>
+                    </td>
+                    <td className="px-4 py-3 font-mono">{coin.holders}</td>
+                    <td className="px-4 py-3 font-mono">{coin.pulls}</td>
+                    <td className="px-4 py-3 font-mono text-acc">{usd(coin.vaultUsd)}</td>
+                    <td className="px-4 py-3 font-mono text-acc">
+                      {usd(coin.packBalanceUsdc)} / {usd(coin.packPriceUsdc)}
+                      <span className="mt-1 block text-mute">{countdown(coin.etaMs) || "When fees cover a pack"}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </div>
