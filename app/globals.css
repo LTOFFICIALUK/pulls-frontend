@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-acc: #ffd23f;
+  --color-ink: #f1efe8;
+  --color-mute: #9a9a9a;
+  --color-line: #1d1d1d;
+}
+
+html,
+body {
+  background: #000;
+  color: #f1efe8;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-sans), "Inter Tight", sans-serif;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #ffd23f;
+  outline-offset: 2px;
+}
