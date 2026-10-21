@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Dialogue, PackFace, PageHead, Slab } from "@/components/ui";
 import { getJson, type Pull } from "@/lib/api";
 import { short, solscanAccount, solscanTx, usd } from "@/lib/format";
 
@@ -24,37 +25,69 @@ export const VaultView = () => {
     return () => window.clearInterval(timer);
   }, []);
 
+  const waiting = offline || !cards || cards.length === 0;
+
   return (
-    <div className="px-6 py-8 md:px-12">
-      <h1 className="font-[family-name:var(--font-pixel)] text-2xl text-acc">Vault</h1>
-      <p className="mt-3 max-w-xl text-mute">Every card pulled. Image, grade, insured value, coin, and winner.</p>
-      {offline ? <p className="mt-8 text-mute">The vault loads from the server. Cards show up here when it answers.</p> : null}
-      {cards && cards.length === 0 ? <p className="mt-8 text-mute">No cards yet. Image, grade, insured value, coin, and winner show up here.</p> : null}
-      <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {(cards || []).map((card) => (
-          <li key={card.id} className="border border-line p-4">
-            {card.image ? (
-              <img src={card.image} alt={card.name || card.grade} className="mb-3 aspect-[63/88] w-full object-contain" />
-            ) : (
-              <p className="mb-3 text-sm text-mute">The card image lands with the pull.</p>
-            )}
-            <p className="font-[family-name:var(--font-pixel)] text-[11px] leading-loose text-acc">{card.grade}</p>
-            <p className="mt-2 font-mono text-sm">{usd(card.insuredUsd)}</p>
-            <p className="mt-2 text-sm">
-              <Link href={`/coin/${card.mint}`} className="font-extrabold">
-                ${card.symbol}
+    <div className="px-6 py-10 md:px-12">
+      <PageHead kicker="REAL CARDS ONLY" title="Vault">
+        Every card pulled. Image, grade, insured value, coin, and winner.
+      </PageHead>
+      {!cards && !offline ? (
+        <div className="mt-8 max-w-3xl">
+          <Dialogue>The vault loads from the server.</Dialogue>
+        </div>
+      ) : null}
+      {offline ? (
+        <div className="mt-8 max-w-3xl">
+          <Dialogue>The vault loads from the server. Cards show up here when it answers.</Dialogue>
+        </div>
+      ) : null}
+      {cards && cards.length === 0 ? (
+        <div className="mt-8 grid items-center gap-8 lg:grid-cols-[270px_1fr]">
+          <div className="flex justify-center lg:justify-start">
+            <PackFace caption="WAITING ON FEES" />
+          </div>
+          <Dialogue>No cards yet. Image, grade, insured value, coin, and winner show up here.</Dialogue>
+        </div>
+      ) : null}
+      {!waiting ? (
+        <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {(cards || []).map((card) => (
+            <li key={card.id}>
+              <Link href={`/coin/${card.mint}`} className="block" aria-label={`$${card.symbol} ${card.grade}`}>
+                <Slab grade={card.grade} note={`$${card.symbol}`} image={card.image} alt={card.name || card.grade} />
               </Link>
-            </p>
-            <p className="mt-1 font-mono text-xs text-mute">
-              {card.winner ? <a href={solscanAccount(card.winner)}>{short(card.winner)}</a> : "Winner pending"}
-            </p>
-            <p className="mt-2 font-mono text-xs">
-              {card.transferSignature ? <a href={solscanTx(card.transferSignature)}>Transfer</a> : null}{" "}
-              {card.paySignature ? <a href={solscanTx(card.paySignature)}>Pack</a> : null}
-            </p>
-          </li>
-        ))}
-      </ul>
+              <p className="mt-3 font-mono text-sm text-acc">{usd(card.insuredUsd)}</p>
+              <p className="mt-1 font-mono text-xs text-mute">
+                {card.winner ? (
+                  <a href={solscanAccount(card.winner)} className="hover:text-ink">
+                    {short(card.winner)}
+                  </a>
+                ) : (
+                  "Winner pending"
+                )}
+              </p>
+              <p className="mt-1 font-mono text-xs text-[#777]">
+                {card.transferSignature ? (
+                  <a href={solscanTx(card.transferSignature)} className="hover:text-acc">
+                    Transfer
+                  </a>
+                ) : (
+                  "Transfer pending"
+                )}
+                {" · "}
+                {card.paySignature ? (
+                  <a href={solscanTx(card.paySignature)} className="hover:text-acc">
+                    Pack
+                  </a>
+                ) : (
+                  "Pack pending"
+                )}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 };

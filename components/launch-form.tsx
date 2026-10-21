@@ -3,6 +3,7 @@
 import { Transaction, VersionedTransaction } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Dialogue, Field, PackFace, Slab, fieldClass } from "@/components/ui";
 import { getJson } from "@/lib/api";
 import { useWallet } from "@/lib/wallet";
 
@@ -38,6 +39,7 @@ export const LaunchForm = () => {
   const [image, setImage] = useState("");
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
+  const ticker = symbol.trim().toUpperCase();
 
   const handleFile = (file: File | undefined) => {
     if (!file) return;
@@ -84,49 +86,64 @@ export const LaunchForm = () => {
   };
 
   return (
-    <form
-      className="mx-auto grid max-w-xl gap-4 px-6 py-10"
-      onSubmit={(event) => {
-        event.preventDefault();
-        void handleLaunch();
-      }}
-    >
-      <h1 className="font-[family-name:var(--font-pixel)] text-xl text-acc md:text-2xl">Launch a coin</h1>
-      <p className="text-mute">Paired with CARDS. Creator fees go to the vault and rip graded packs for holders.</p>
-      <label className="grid gap-1 text-sm font-bold">
-        Name
-        <input value={name} onChange={(event) => setName(event.target.value)} maxLength={32} required className="rounded-[10px] border border-[#333] bg-black px-3 py-3 font-medium" />
-      </label>
-      <label className="grid gap-1 text-sm font-bold">
-        Ticker
-        <input value={symbol} onChange={(event) => setSymbol(event.target.value.toUpperCase())} maxLength={13} required className="rounded-[10px] border border-[#333] bg-black px-3 py-3 font-mono" />
-      </label>
-      <label className="grid gap-1 text-sm font-bold">
-        Image
-        <input type="file" accept="image/png,image/jpeg,image/webp" required onChange={(event) => handleFile(event.target.files?.[0])} className="text-sm font-medium text-mute" />
-      </label>
-      <label className="grid gap-1 text-sm font-bold">
-        Description
-        <textarea value={description} onChange={(event) => setDescription(event.target.value)} maxLength={500} rows={4} className="rounded-[10px] border border-[#333] bg-black px-3 py-3 font-medium" />
-      </label>
-      <label className="grid gap-1 text-sm font-bold">
-        X link
-        <input value={xUrl} onChange={(event) => setXUrl(event.target.value)} placeholder="https://x.com/" className="rounded-[10px] border border-[#333] bg-black px-3 py-3 font-medium" />
-      </label>
-      <label className="grid gap-1 text-sm font-bold">
-        Dev buy in SOL
-        <input value={devBuy} onChange={(event) => setDevBuy(event.target.value)} inputMode="decimal" placeholder="0" className="rounded-[10px] border border-[#333] bg-black px-3 py-3 font-mono" />
-        <span className="font-medium text-mute">Optional. SOL swaps to CARDS, then buys the coin. Extra CARDS stays in your wallet.</span>
-      </label>
-      <label className="grid gap-1 text-sm font-bold">
-        Vanity suffix
-        <input value={vanity} onChange={(event) => setVanity(event.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 2))} className="rounded-[10px] border border-[#333] bg-black px-3 py-3 font-mono" />
-        <span className="font-medium text-mute">Optional. One or two characters at the end of the mint.</span>
-      </label>
-      <button type="submit" disabled={busy} className="rounded-[10px] bg-acc px-5 py-3.5 font-extrabold text-black disabled:opacity-60">
-        {busy ? "Building" : wallet.address ? "Sign and launch" : "Connect Phantom and launch"}
-      </button>
-      {note ? <p className="text-sm text-acc">{note}</p> : null}
-    </form>
+    <div className="grid items-start gap-10 px-6 py-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:px-12">
+      <div>
+        <p className="font-[family-name:var(--font-pixel)] text-[11px] leading-loose text-acc">▶ PAIRED WITH CARDS</p>
+        <h1 className="mt-4 font-[family-name:var(--font-pixel)] text-xl leading-relaxed text-ink md:text-[28px]">Launch a coin</h1>
+        <p className="mt-4 max-w-md text-lg leading-snug text-mute">Creator fees go to the vault and rip graded packs for holders.</p>
+        <div className="mt-10 flex justify-center lg:justify-start">
+          {image ? (
+            <div className="w-[220px] rotate-[6deg]">
+              <Slab grade={ticker ? `$${ticker}` : "COIN"} note="PREVIEW" image={image} alt={name || "Coin image"} />
+            </div>
+          ) : (
+            <PackFace caption={ticker ? `$${ticker}` : "1 GRADED SLAB INSIDE"} />
+          )}
+        </div>
+      </div>
+      <form
+        className="grid gap-5 border border-line bg-[#0a0a0a] p-5 md:p-6"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleLaunch();
+        }}
+      >
+        <Field label="Name">
+          <input value={name} onChange={(event) => setName(event.target.value)} maxLength={32} required className={fieldClass} />
+        </Field>
+        <Field label="Ticker">
+          <input value={symbol} onChange={(event) => setSymbol(event.target.value.toUpperCase())} maxLength={13} required className={`${fieldClass} font-mono`} />
+        </Field>
+        <Field label="Image">
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            required
+            onChange={(event) => handleFile(event.target.files?.[0])}
+            className="text-sm text-mute file:mr-3 file:rounded-[10px] file:border-0 file:bg-acc file:px-3 file:py-2 file:font-extrabold file:text-black"
+          />
+        </Field>
+        <Field label="Description">
+          <textarea value={description} onChange={(event) => setDescription(event.target.value)} maxLength={500} rows={4} className={fieldClass} />
+        </Field>
+        <Field label="X link">
+          <input value={xUrl} onChange={(event) => setXUrl(event.target.value)} placeholder="https://x.com/" className={fieldClass} />
+        </Field>
+        <Field label="Dev buy in SOL" hint="Optional. SOL swaps to CARDS, then buys the coin. Extra CARDS stays in your wallet.">
+          <input value={devBuy} onChange={(event) => setDevBuy(event.target.value)} inputMode="decimal" placeholder="0" className={`${fieldClass} font-mono`} />
+        </Field>
+        <Field label="Vanity suffix" hint="Optional. One or two characters at the end of the mint.">
+          <input
+            value={vanity}
+            onChange={(event) => setVanity(event.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 2))}
+            className={`${fieldClass} font-mono`}
+          />
+        </Field>
+        <button type="submit" disabled={busy} className="rounded-[10px] bg-acc px-5 py-3.5 font-extrabold text-black disabled:opacity-60">
+          {busy ? "Building the pack" : wallet.address ? "Sign and launch" : "Connect Phantom and launch"}
+        </button>
+        {note ? <Dialogue plain>{note}</Dialogue> : null}
+      </form>
+    </div>
   );
 };

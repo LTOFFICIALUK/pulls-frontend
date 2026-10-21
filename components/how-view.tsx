@@ -1,3 +1,5 @@
+import { Dialogue, PackFace, PageHead } from "@/components/ui";
+
 const steps = [
   "Launch a coin paired with CARDS. The vault is the creator, so creator fees arrive in CARDS.",
   "Every 10 minutes the vault claims those fees and swaps them to USDC.",
@@ -8,16 +10,24 @@ const steps = [
 ];
 
 export const HowView = () => (
-  <div className="px-6 py-8 md:px-12">
-    <h1 className="font-[family-name:var(--font-pixel)] text-2xl leading-relaxed text-acc md:text-3xl">How it works</h1>
-    <p className="mt-4 max-w-xl text-lg text-mute">Open packs, not charts. Real cards. Real NFTs. Real USDC.</p>
-    <ol className="mt-8 grid max-w-3xl gap-4">
-      {steps.map((step, index) => (
-        <li key={step} className="border border-line p-4">
-          <p className="font-[family-name:var(--font-pixel)] text-[10px] text-acc">{String(index + 1).padStart(2, "0")}</p>
-          <p className="mt-2 text-lg">{step}</p>
-        </li>
-      ))}
-    </ol>
+  <div className="px-6 py-10 md:px-12">
+    <PageHead kicker="SIX STEPS" title="How it works">
+      Open packs, not charts. Real cards. Real NFTs. Real USDC.
+    </PageHead>
+    <div className="mt-10 grid items-start gap-10 xl:grid-cols-[minmax(0,720px)_270px]">
+      <ol className="grid gap-3">
+        {steps.map((step, index) => (
+          <li key={step}>
+            <Dialogue plain>
+              <p className="font-[family-name:var(--font-pixel)] text-[10px] text-acc">{String(index + 1).padStart(2, "0")}</p>
+              <p className="mt-3 text-lg leading-snug">{step}</p>
+            </Dialogue>
+          </li>
+        ))}
+      </ol>
+      <div className="hidden justify-center xl:flex">
+        <PackFace />
+      </div>
+    </div>
   </div>
 );
