@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter_Tight, JetBrains_Mono, Press_Start_2P } from "next/font/google";
 import { Shell } from "@/components/shell";
+import { PULLS_CA } from "@/lib/pulls";
 import { WalletProvider } from "@/lib/wallet";
 import "./globals.css";
 
@@ -32,7 +33,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <html lang="en" className={`${pixel.variable} ${sans.variable} ${mono.variable}`}>
     <body>
       <WalletProvider>
-        <Shell ca={process.env.NEXT_PUBLIC_PULLS_CA || ""}>{children}</Shell>
+        <Shell ca={process.env.NEXT_PUBLIC_PULLS_CA || PULLS_CA}>{children}</Shell>
       </WalletProvider>
     </body>
   </html>

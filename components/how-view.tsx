@@ -1,7 +1,7 @@
 const steps = [
   "Launch a coin paired with CARDS. The vault is the creator, so creator fees arrive in CARDS.",
   "Every 10 minutes the vault claims those fees and swaps them to USDC.",
-  "80 percent of each coin stays with that coin. 10 percent tops up $PULLS. 10 percent goes to the platform.",
+  "80 percent of each coin stays with that coin. 10 percent tops up $PULLS. 10 percent goes to the platform wallet. $PULLS is launched from that wallet, so its creator fees stay there.",
   "When a coin balance covers the cheapest open pack, the vault buys one real graded pack.",
   "One holder wins the card, weighted by balance. Wallets under 0.1 percent of supply sit out. The draw uses the pack payment signature. The holder list and seed stay public on Records.",
   "The winner keeps the card and can redeem the physical one on Collector Crypt, or cashes out within 72 hours.",

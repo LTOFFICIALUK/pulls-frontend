@@ -1,0 +1,1 @@
+export const PULLS_CA = "CVxBbgYaGpLxCX8j5eFtaR34WStUFcxDGLQ8EKhPULLS";
