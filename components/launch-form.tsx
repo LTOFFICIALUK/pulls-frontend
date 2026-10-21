@@ -73,12 +73,27 @@ export const LaunchForm = () => {
           vanity,
         }),
       });
-      const signed = await wallet.signAll(built.transactions.map((item) => decode(item.tx)));
-      const sent = await getJson<{ mint: string }>("/v1/launch/submit", {
+      const signed: string[] = [];
+      for (const item of built.transactions) {
+        setNote(item.kind === "swap" ? "Confirm the CARDS swap in Phantom." : "Confirm the coin create in Phantom.");
+        const [one] = await wallet.signAll([decode(item.tx)]);
+        signed.push(encode(one));
+      }
+      setNote("Sending the coin.");
+      const sent = await getJson<{ mint: string; buy: string | null }>("/v1/launch/submit", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ launchId: built.launchId, transactions: signed.map(encode) }),
+        body: JSON.stringify({ launchId: built.launchId, transactions: signed }),
       });
+      if (sent.buy) {
+        setNote("Confirm the dev buy in Phantom.");
+        const [buySigned] = await wallet.signAll([decode(sent.buy)]);
+        await getJson("/v1/launch/buy", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ launchId: built.launchId, transaction: encode(buySigned) }),
+        });
+      }
       router.push(`/coin/${sent.mint}`);
     } catch (err) {
       setNote(err instanceof Error ? err.message : "Launch needs another try.");

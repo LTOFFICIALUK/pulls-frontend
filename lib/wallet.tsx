@@ -74,9 +74,9 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const signAll = useCallback(
     async (txs: (Transaction | VersionedTransaction)[]) => {
       const phantom = await ready();
-      if (txs.length === 1 && phantom.signTransaction) return [await phantom.signTransaction(txs[0])];
-      if (!phantom.signAllTransactions) throw new Error("Phantom needs to sign this launch.");
-      return phantom.signAllTransactions(txs);
+      const signed: (Transaction | VersionedTransaction)[] = [];
+      for (const tx of txs) signed.push(await phantom.signTransaction(tx));
+      return signed;
     },
     [ready],
   );
