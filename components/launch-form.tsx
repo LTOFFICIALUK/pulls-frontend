@@ -1,6 +1,7 @@
 "use client";
 
-import { Transaction, VersionedTransaction } from "@solana/web3.js";
+import { Keypair, Transaction, VersionedTransaction } from "@solana/web3.js";
+import bs58 from "bs58";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Dialogue, Field, PackFace, Slab, fieldClass } from "@/components/ui";
@@ -58,7 +59,7 @@ export const LaunchForm = () => {
     if (!address) throw new Error("Connect Phantom to launch.");
     setBusy(true);
     try {
-      const built = await getJson<{ launchId: string; mint: string; transactions: { kind: string; tx: string }[] }>("/v1/launch/build", {
+      const built = await getJson<{ launchId: string; mint: string; mintSecret: string; transactions: { kind: string; tx: string }[] }>("/v1/launch/build", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -73,10 +74,13 @@ export const LaunchForm = () => {
           vanity,
         }),
       });
+      const mintKey = Keypair.fromSecretKey(bs58.decode(built.mintSecret));
       const signed: string[] = [];
       for (const item of built.transactions) {
         setNote(item.kind === "swap" ? "Confirm the CARDS swap in Phantom." : "Confirm the coin create in Phantom.");
-        const [one] = await wallet.signAll([decode(item.tx)]);
+        const tx = decode(item.tx);
+        if (item.kind === "create" && tx instanceof Transaction) tx.partialSign(mintKey);
+        const [one] = await wallet.signAll([tx]);
         signed.push(encode(one));
       }
       setNote("Sending the coin.");
