@@ -90,7 +90,9 @@ export const LaunchForm = () => {
       <div>
         <p className="font-[family-name:var(--font-pixel)] text-[11px] leading-loose text-acc">▶ PAIRED WITH CARDS</p>
         <h1 className="mt-4 font-[family-name:var(--font-pixel)] text-xl leading-relaxed text-ink md:text-[28px]">Launch a coin</h1>
-        <p className="mt-4 max-w-md text-lg leading-snug text-mute">Creator fees go to the vault and rip graded packs for holders.</p>
+        <p className="mt-4 max-w-md text-lg leading-snug text-mute">
+          Each coin gets its own creator wallet, so its fees stay separate. 80 percent rips packs for holders. 10 percent fills $PULLS packs. 10 percent goes to the platform wallet.
+        </p>
         <div className="mt-10 flex justify-center lg:justify-start">
           {image ? (
             <div className="w-[220px] rotate-[6deg]">
