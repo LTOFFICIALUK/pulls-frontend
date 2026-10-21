@@ -34,6 +34,7 @@ export const LaunchForm = () => {
   const [symbol, setSymbol] = useState("");
   const [description, setDescription] = useState("");
   const [xUrl, setXUrl] = useState("");
+  const [website, setWebsite] = useState("");
   const [devBuy, setDevBuy] = useState("");
   const [vanity, setVanity] = useState("");
   const [image, setImage] = useState("");
@@ -66,6 +67,7 @@ export const LaunchForm = () => {
           symbol,
           description,
           xUrl,
+          website,
           image,
           devBuySol: devBuy ? Number(devBuy) : 0,
           vanity,
@@ -129,7 +131,16 @@ export const LaunchForm = () => {
           <textarea value={description} onChange={(event) => setDescription(event.target.value)} maxLength={500} rows={4} className={fieldClass} />
         </Field>
         <Field label="X link">
-          <input value={xUrl} onChange={(event) => setXUrl(event.target.value)} placeholder="https://x.com/" className={fieldClass} />
+          <input value={xUrl} onChange={(event) => setXUrl(event.target.value)} placeholder="https://x.com/" inputMode="url" className={fieldClass} />
+        </Field>
+        <Field label="Website" hint="Optional. This address is written into the coin metadata.">
+          <input
+            value={website}
+            onChange={(event) => setWebsite(event.target.value)}
+            placeholder="https://"
+            inputMode="url"
+            className={fieldClass}
+          />
         </Field>
         <Field label="Dev buy in SOL" hint="Optional. SOL swaps to CARDS, then buys the coin. Extra CARDS stays in your wallet.">
           <input value={devBuy} onChange={(event) => setDevBuy(event.target.value)} inputMode="decimal" placeholder="0" className={`${fieldClass} font-mono`} />

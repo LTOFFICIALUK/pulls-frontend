@@ -154,6 +154,13 @@ export const CoinView = ({ mint }: { mint: string }) => {
               {coin.mint}
             </a>
           </p>
+          {coin.websiteUrl ? (
+            <p className="mt-2 break-all font-mono text-xs">
+              <a href={coin.websiteUrl} className="text-acc hover:text-ink" rel="noreferrer">
+                {coin.websiteUrl}
+              </a>
+            </p>
+          ) : null}
           <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <Stat label="Holders" value={String(coin.holders)} />
             <Stat label="Pulls" value={String(coin.pulls)} />

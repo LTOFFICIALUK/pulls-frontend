@@ -5,6 +5,7 @@ export type Coin = {
   description: string;
   imageUrl: string;
   xUrl: string | null;
+  websiteUrl: string | null;
   holders: number;
   pulls: number;
   vaultUsd: number;
